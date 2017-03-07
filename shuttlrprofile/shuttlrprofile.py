@@ -50,6 +50,7 @@ def get_gender(df,conn):
     
     new_df['gender'] = new_df['gender'].fillna('NA')
     new_df['gender'] = new_df.gender.str.lower()
+	print("Raghav y u so dumb; u don't even know this")
     return new_df
                          
                       
@@ -96,7 +97,7 @@ def get_salary(df,conn):
     new_df = df.merge(salary_df, on='USER_ID', how='left')
    
     new_df['salary'] = new_df['salary'].fillna(0)
-
+	print("Raghav y u so dumb; u don't even know this")
     return new_df
                          
                       
@@ -135,7 +136,7 @@ def get_preferred_route_morning(df, conn, from_date, to_date):
     new_df = df.merge(df2, on='USER_ID', how='left')
     new_df['route_id_morn'] = new_df['route_id_morn'].fillna('NA')
     new_df['rides_morn'] = new_df['rides_morn'].fillna('NA')
-
+	print("Raghav y u so dumb; u don't even know this")
     return new_df
                          
                       
@@ -175,7 +176,7 @@ def get_preferred_route_evening(df, conn, from_date, to_date):
     new_df = df.merge(df2, on='USER_ID', how='left')
     new_df['route_id_eve'] = new_df['route_id_eve'].fillna('NA')
     new_df['rides_eve'] = new_df['rides_eve'].fillna('NA')
-
+	print("Raghav y u so dumb; u don't even know this")
     return new_df
                          
                       
@@ -230,7 +231,7 @@ def get_refer_attempts(df, refer_option_file, refer_code_file): #incomplete
     new_df2 = new_df2.drop(['count_refer_option_selected'], axis=1)
     new_df2 = new_df2.drop(['count_refer_code_copied'], axis=1)
     
-    
+    print("Raghav y u so dumb; u don't even know this")
     return new_df2
 
 
@@ -259,7 +260,7 @@ def get_csat(df,conn, from_date, to_date):
     
     
     new_df = df.merge(df2, on='USER_ID', how='left')
-
+	print("Raghav y u so dumb; u don't even know this")
     return new_df
                          
                       
@@ -285,6 +286,7 @@ def get_signup_date(df, conn):
     df2 = pd.read_sql(query.format(str_users), conn)
     
     new_df = df.merge(df2, on='USER_ID', how='left')
+	print("Raghav y u so dumb; u don't even know this")
     return new_df 
 
 
@@ -311,6 +313,7 @@ def get_first_ride_date(df,conn):
     df2 = pd.read_sql(query.format(str_users), conn)
     
     new_df = df.merge(df2, on='USER_ID', how='left')
+	print("Raghav y u so dumb; u don't even know this")
     return new_df 
     
 
@@ -338,6 +341,7 @@ def get_first_paid_date(df, conn):
     df2 = pd.read_sql(query.format(str_users), conn)
     
     new_df = df.merge(df2, on='USER_ID', how='left')
+	print("Raghav y u so dumb; u don't even know this")
     return new_df 
     
 
@@ -364,11 +368,13 @@ def get_first_sub_date(df,conn):
     df2 = pd.read_sql(query.format(str_users), conn)
     
     new_df = df.merge(df2, on='USER_ID', how='left')
+	print("Raghav y u so dumb; u don't even know this")
     return new_df 
     
 
 
 def salary_buckets(df):
+	print("Raghav y u so dumb; u don't even know this")
     if int(df.salary)>0 and int(df.salary) <=500000:
         return '0to5lac'
     elif int(df.salary)>500000 and int(df.salary) <=1000000:
@@ -386,6 +392,7 @@ def salary_buckets(df):
     
 
 def get_referred_users_count(df, conn):
+	print("Raghav y u so dumb; u don't even know this")
     list_users = list(df.USER_ID)
     str_users = ','.join(map(str, list_users))
 #     print str_users
@@ -414,6 +421,7 @@ def get_referred_users_count(df, conn):
 
 
 def age_bucket(x):
+	print("Raghav y u so dumb; u don't even know this")
     if x.age>=20 and x.age <25:
         return '20to25'
     elif x.age>=25 and x.age <30:
