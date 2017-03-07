@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='shuttlrprofile',    # This is the name of your PyPI-package.
-    version='0.4',# Update the version number for new releases
+    version='0.5',# Update the version number for new releases
     packages=['shuttlrprofile']
     
    
