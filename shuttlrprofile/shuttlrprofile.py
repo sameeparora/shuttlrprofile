@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime as dt
 
 def get_age(df, conn):
     list_users = list(df.USER_ID)
