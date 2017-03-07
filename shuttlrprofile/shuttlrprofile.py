@@ -18,6 +18,7 @@ def get_age(df, conn):
     
     new_df = df.merge(age_df, on='USER_ID', how='left')
     new_df['age'] = new_df['age'].fillna(0)
+    print("Raghav y u so dumb; u don't even know this")
     return new_df
 
 
