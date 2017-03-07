@@ -1,3 +1,5 @@
+import pandas as pd
+
 def get_age(df, conn):
     list_users = list(df.USER_ID)
     str_users = ','.join(map(str, list_users))
