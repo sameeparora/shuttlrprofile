@@ -540,4 +540,42 @@ def get_nps(list):
     return nps        
         
         
+def get_user_devices(df,col_name,conn):
+    list_users = list(df[col_name])
+    str_users = ','.join(map(str, list_users))
+        
+    query = """select USER_ID as {1}, 
+    GROUP_CONCAT(DISTINCT DEVICE_ID
+    ORDER BY created_time SEPARATOR ',') as user_devices_{1}
+    from USER_MANAGEMENT_SYSTEMS.USER_DEVICES
+    where USER_ID in ({0})
+    and is_delete=0
+    group by USER_ID
+    """
+    
+    df2 = pd.read_sql(query.format(str_users, col_name), conn)
+
+    
+    new_df = df.merge(df2, on=col_name, how='left')
+    
+    return new_df
+                         
+def  get_userid_from_phone(df, col_name, conn):
+    list_phones = list(df[col_name])
+    str_phones = ','.join(map(str, list_phones))
+    
+        
+    query = """select phone_number as {1}, USER_ID
+    from USER_MANAGEMENT_SYSTEMS.USERS
+    where phone_number in ({0})
+    and is_delete = 0
+    """
+    
+    df2 = pd.read_sql(query.format(str_phones, col_name), conn)
+    
+    df2['Phone'] = df2['Phone'].astype('str')
+    
+    new_df = df.merge(df2, on=col_name, how='left')
+    
+    return new_df 
     
