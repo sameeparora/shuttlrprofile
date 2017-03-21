@@ -385,22 +385,23 @@ def salary_buckets(df):
         return 'Other'
     
 
-def get_referred_users_count(df, conn):
+def get_referred_users_count(df,from_date,to_date,conn):
     list_users = list(df.USER_ID)
     str_users = ','.join(map(str, list_users))
 #     print str_users
     
     age_query = """select * from
     (select USER_ID as referred_user_id, referred_by from USER_MANAGEMENT_SYSTEMS.USERS
-    where referred_by is not null ) a
+    where referred_by is not null
+    and date(from_unixtime(created_time/1000)) between '{1}' and '{2}') a
     right join
     (select user_id as referring_user_id, refer_id, old_refer_id from USER_MANAGEMENT_SYSTEMS.USERS
     where user_id in ({0})) b
     on a.referred_by = b. refer_id or a.referred_by = b.old_refer_id
     """
     
-    conn = MySQLdb.connect(host="localhost",port=3307,passwd="abcd1234",user="sa1209IU")
-    age_df = pd.read_sql(age_query.format(str_users), conn)
+    #conn = MySQLdb.connect(host="localhost",port=3307,passwd="abcd1234",user="sa1209IU")
+    age_df = pd.read_sql(age_query.format(str_users, from_date,to_date), conn)
     
     new_df = age_df.groupby('referring_user_id')['referred_user_id'].count().reset_index()
     new_df.columns = ['USER_ID', 'signups_generated']
@@ -432,3 +433,111 @@ def age_bucket(x):
         return 'Other'
     else:
         return 'Other'
+    
+def get_total_rides(df, col_name,from_date,to_date,conn):
+        
+    list_users = list(df[col_name])
+    str_users = ','.join(map(str, list_users))    
+    
+    query = """select USER_ID, count(*) as total_rides
+    from USER_MANAGEMENT_SYSTEMS.BOOKINGS
+    where user_id in ({0})
+    and is_delete=0
+    and status in ('CONFIRMED', 'RESCHEDULED')
+    and date(from_unixtime(created_time/1000)) between '{1}' and '{2}'
+    group by 1"""
+
+
+    
+    df2 = pd.read_sql(query.format(str_users), conn)
+    df2.columns = [col_name, 'total_rides']
+    new_df = df.merge(df2, on=col_name,  how='left')
+    
+    return new_df
+    
+def get_first_signup_gen_date(df, col_name, conn):
+    
+    list_users = list(df[col_name])
+    str_users = ','.join(map(str, list_users))    
+    
+    query = """select referring_user_id, min(signup_gen_date) from
+    (
+    select USER_ID , date(from_unixtime(created_time/1000)) as signup_gen_date, referred_by
+    from USER_MANAGEMENT_SYSTEMS.USERS
+    where referred_by is not null
+    ) a
+    right join
+    (select user_id as referring_user_id, refer_id, old_refer_id from USER_MANAGEMENT_SYSTEMS.USERS
+    where user_id in ({0})) b
+    on a.referred_by = b. refer_id or a.referred_by = b.old_refer_id
+    group by 1"""
+
+
+    
+    df2 = pd.read_sql(query.format(str_users), conn)
+    df2.columns = [col_name, 'first_signup_gen_date']
+    new_df = df.merge(df2, on=col_name,  how='left')
+    
+    return new_df
+
+def get_aqu_channel(df,col_name,conn):
+    
+    list_users = list(df[col_name])
+    str_users = ','.join(map(str, list_users))    
+    
+    query = """select a.user_id,
+        case when a.is_btl = 1 then 'btl'
+        when a.is_referred = 1 then 'ref'
+        else 'org' end as acquisition_channel
+from
+(
+        select a.*,
+                b.is_btl
+        from
+        (
+                select a.user_id,
+                    case when referred_by is not null then 1 else 0 end is_referred
+                from USER_MANAGEMENT_SYSTEMS.USERS as a
+                where is_delete = 0
+                and user_id in ({0})
+        ) as a
+        left join
+        (
+                select a.user_id,
+                        a.first_booking_id,
+                        case when b.coupon_code REGEXP '^[0-9]{{10}}' or coupon_code like 'BTL%' then 1 else 0
+                        end as is_btl
+                from
+                (
+                        select user_id,
+                                min(booking_id) as first_booking_id
+                        from USER_MANAGEMENT_SYSTEMS.BOOKINGS
+                        where is_delete = 0
+                        group by 1
+                ) as a
+                left join USER_MANAGEMENT_SYSTEMS.BOOKINGS as b
+                on a.first_booking_id = b.booking_id
+        ) as b
+        on a.user_id = b.user_id
+) as a"""
+
+
+    
+    df2 = pd.read_sql(query.format(str_users), conn)
+    df2.columns = [col_name, 'aqu_channel']
+    new_df = df.merge(df2, on=col_name,  how='left')
+    
+    return new_df
+        
+def get_nps(list):
+    total_ratings = len(list)
+#     print 'total' + str(total_ratings) 
+    pos_ratings = (list>=9).sum()
+#     print 'pos' + str(pos_ratings) 
+    neg_ratings = (list<=6).sum()
+#     print 'neg' + str(neg_ratings) 
+    nps = ((pos_ratings-neg_ratings)*100)/total_ratings
+    return nps        
+        
+        
+    
